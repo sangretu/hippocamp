@@ -19,16 +19,39 @@
   {
     return array[getRandomInt(0, array.length-1)];
   };
+  
+  // Fisher-Yates Shuffle as described ingeniously here: http://bost.ocks.org/mike/shuffle/
+  shuffle = function(array)
+  {
+    var m = array.length, t, i;
+
+    // While there remain elements to shuffle…
+    while (m)
+    {
+
+      // Pick a remaining element…
+      i = Math.floor(Math.random() * m--);
+
+      // And swap it with the current element.
+      t = array[m];
+      array[m] = array[i];
+      array[i] = t;
+    }
+
+    return array;
+  };
 }
 
 
 { /* Globals */
   var foo   = null; // test object
   
-  var content        = null; // page element
-  var modes          = null;
-  var currentMode    = null;
-  var currentDataset = null;
+  var content           = null; // page element
+  var modes             = null;
+  var currentMode       = null;
+  var currentDataset    = null;
+  var currentCategory   = null;
+  var currentProblemset = null;
 }
 
 { /* Modes */
@@ -45,29 +68,52 @@
       return newButton;
     },
     
-    placeButtons : function(params)
+    makeProblem : function(params)
     {
-      content.appendChild(this.makeButton());
+      var newProblem = document.createElement('div');
+      newProblem.classList.add('problem');
+      newProblem.textContent = 'undefined';
+      return newProblem;
+    },
+    
+    startProblemset : function(params)
+    {
+      var randomOptions = shuffle(Array.from(currentProblemset));
+      
+      for (var i in randomOptions)
+      {
+        var p = this.makeProblem();
+        p.textContent = randomOptions[i].problem;
+        content.appendChild(p);
+        
+        // wait for input
+      }
     },
     
     startCategory : function(params)
     {
-      var category = chooseAtRandom(currentDataset);
-      var problemset = chooseAtRandom(category.problemsets);
+      currentCategory   = chooseAtRandom(currentDataset);
+      currentProblemset = chooseAtRandom(currentCategory.problemsets);
       
-      for (var i in problemset)
+      // I guess this goes in a loop?
+      
+      var randomOptions = shuffle(Array.from(currentProblemset));
+      
+      for (var i in randomOptions)
       {
         var b = this.makeButton();
-        b.textContent = problemset[i].answer;
+        b.textContent = randomOptions[i].answer;
         content.appendChild(b);
-      }
+      };
+      
+      this.startProblemset();
     },
     
     endCategory : function(params)
     {
       // get rid of content content
       content.innerHTML = null;
-    }
+    },
   };
   
 }
