@@ -1,0 +1,3 @@
+[2020-05-13]
+
+  I think I need to do some redesigning, to take into account the necessary event management, if nothing else.

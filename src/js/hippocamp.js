@@ -42,7 +42,6 @@
   };
 }
 
-
 { /* Globals */
   var foo   = null; // test object
   
@@ -52,6 +51,35 @@
   var currentDataset    = null;
   var currentCategory   = null;
   var currentProblemset = null;
+  
+  // enum for consistency
+  var EVENT_TYPES       =
+  {
+    PAGE_LOADED : 'page loaded',
+    CLICK       : 'click'
+  }
+}
+
+{ /* Classes */
+
+    { // TelemetryEvent
+  
+    var TelemetryEvent = function(data)
+    {    
+      // naive property copy for broad parameter support
+      for (key in data) this[key] = data[key];
+      
+      this.level = this.level || LOG_LEVELS.DEFAULT;
+      
+      this.when  = this.when  || Date.now();
+      this.where = this.where || window.location.href;
+      this.who   = this.who   || user.getId();
+      this.what  = this.what  || 'undefined';
+      this.why   = this.why   || 'undefined';
+      this.how   = this.how   || 'undefined';
+    }
+  
+  }
 }
 
 { /* Modes */
@@ -87,6 +115,9 @@
         content.appendChild(p);
         
         // wait for input
+        // so we need to create the buttons properly
+        // enable them once the problem is ready
+        // and add handlers
       }
     },
     
@@ -133,7 +164,26 @@
   {
     // init globals
     content = document.getElementById('content');
+    
+    initCapture();
   };
+  
+  function initCapture()
+  {
+    // capture all click events
+    // NOTE: jQuery dependency
+    //$(document).click(function(e)
+    
+    // NOTE: this doesn't work so well with dynamic content, does it?
+    // 2020-05-13
+    content.click(function(e)
+    {
+      // verbose, but interesting
+      // NOTE: outerHTML is way too much
+      // log(new TelemetryEvent({ what : EVENT_TYPES.CLICK, target : e.target.outerHTML }), true);
+      log(new TelemetryEvent({ what : EVENT_TYPES.CLICK, target : e.target.toString() }), true);
+    });
+  }
 
   // Avoiding jQuery dependency, but I'm not sure how reliable this is.
   document.addEventListener("DOMContentLoaded", function(event)
